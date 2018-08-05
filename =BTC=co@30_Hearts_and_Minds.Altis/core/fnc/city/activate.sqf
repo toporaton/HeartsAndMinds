@@ -53,6 +53,8 @@ if (!_is_init) then {
 };
 
 _city setVariable ["active", true];
+private _delay_of_activating = [];
+private _mil_create_groups = []; // Store military unit needed to spawn one by one
 
 if !(_ieds isEqualTo []) then {
     private _ieds_data = _ieds apply {_x call btc_fnc_ied_create};
@@ -62,11 +64,14 @@ if !(_ieds isEqualTo []) then {
 
 if !(_data_units isEqualTo []) then {
     {
-        (_x call btc_fnc_data_spawn_group) params ["_leader", "_type"];
-        if (_type in [5, 7]) then {
-            _leader addEventHandler ["killed", format ["[%1] call btc_fnc_eh_suicider", _id]];
-        };
+        [{
+            (_this call btc_fnc_data_spawn_group) params ["_leader", "_type"];
+            if (_type in [5, 7]) then {
+                _leader addEventHandler ["killed", format ["[%1] call btc_fnc_eh_suicider", _id]];
+            };
+        }, _x, _forEachIndex] call CBA_fnc_waitAndExecute;
     } forEach _data_units;
+    _delay_of_activating pushBack count _data_units;
 } else {
     //Spawn bad guys "NameVillage","NameCity","NameCityCapital","NameLocal"
     private _ratio = (switch _type do {
@@ -84,7 +89,9 @@ if !(_data_units isEqualTo []) then {
         //Find a better way to randomize city occupation
         private _n = random 3;
         private _groups = ceil ((1 + _n) * _ratio);
-        for "_i" from 1 to (_groups) do {[_city, _radius, 1 + random _ratio, random 1] call btc_fnc_mil_create_group;};
+        for "_i" from 1 to (_groups) do {
+            _mil_create_groups pushBack [_city, _radius, 1 + random _ratio, random 1];
+        };
     };
 
     //Spawn civilians
@@ -98,22 +105,22 @@ if !(_data_units isEqualTo []) then {
             default {1};
         });
         private _n = 3 * _factor;
-        [_city, _radius/3, _n] call btc_fnc_civ_populate;
+        _delay_of_activating pushBack ([_city, _radius/3, _n] call btc_fnc_civ_populate);
     };
 };
 
 if (_has_en) then {
     private _trigger = createTrigger["EmptyDetector", getPos _city];
-    _trigger setTriggerArea[_radius_x + _radius_y, _radius_x + _radius_y, 0, false];
-    _trigger setTriggerActivation[str btc_enemy_side, "NOT PRESENT", false];
-    _trigger setTriggerStatements ["this", format ["[%1] spawn btc_fnc_city_set_clear", _id], ""];
+    _trigger setTriggerArea [_radius_x + _radius_y, _radius_x + _radius_y, 0, false];
+    _trigger setTriggerActivation [str btc_enemy_side, "NOT PRESENT", false];
+    _trigger setTriggerStatements ["this", format ["[%1] call btc_fnc_city_set_clear", _id], ""];
     _city setVariable ["trigger", _trigger];
 };
 
 if (_city getVariable ["spawn_more", false]) then {
     _city setVariable ["spawn_more", false];
     for "_i" from 1 to (2 + round random 3) do {
-        [_city, _radius, 4 + random 3, random 1] call btc_fnc_mil_create_group;
+        _mil_create_groups pushBack [_city, _radius, 4 + random 3, random 1];
     };
     if (btc_p_veh_armed_spawn_more) then {
         private _closest = [_city, btc_city_all select {!(_x getVariable ["active", false])}, false] call btc_fnc_find_closecity;
@@ -126,8 +133,8 @@ if (_city getVariable ["spawn_more", false]) then {
 if !(btc_cache_pos isEqualTo []) then {
     if (_city inArea [btc_cache_pos, _radius_x + _radius_y, _radius_x + _radius_y, 0, false]) then {
         if (count (btc_cache_pos nearEntities ["Man", 30]) > 3) exitWith {};
-        [btc_cache_pos, 8, 3, 0.2] call btc_fnc_mil_create_group;
-        [btc_cache_pos, 60, 4, 0.5] call btc_fnc_mil_create_group;
+        _mil_create_groups pushBack [btc_cache_pos, 8, 3, 0.2];
+        _mil_create_groups pushBack [btc_cache_pos, 60, 4, 0.5];
         if (btc_p_veh_armed_spawn_more) then {
             private _closest = [_city, btc_city_all select {!(_x getVariable ["active", false])}, false] call btc_fnc_find_closecity;
             for "_i" from 1 to (1 + round random 3) do {
@@ -140,9 +147,9 @@ if !(btc_cache_pos isEqualTo []) then {
 if (_has_ho && {!(_city getVariable ["ho_units_spawned", false])}) then {
     _city setVariable ["ho_units_spawned", true];
     private _pos = _city getVariable ["ho_pos", getPos _city];
-    [_pos, 20, 10 + random 6, 0.8] call btc_fnc_mil_create_group;
-    [_pos, 120, 1 + random 2, 0.5] call btc_fnc_mil_create_group;
-    [_pos, 120, 1 + random 2, 0.5] call btc_fnc_mil_create_group;
+    _mil_create_groups pushBack [_pos, 20, 10 + random 6, 0.8];
+    _mil_create_groups pushBack [_pos, 120, 1 + random 2, 0.5];
+    _mil_create_groups pushBack [_pos, 120, 1 + random 2, 0.5];
     private _random = random 1;
     switch (true) do {
         case (_random < 0.3) : {};
@@ -178,7 +185,21 @@ if !(_city getVariable ["has_suicider", false]) then {
     };
 };
 
-_city setVariable ["activating", false];
+private _delay_of_createUnit = 0;
+{
+    _delay_of_createUnit = ((_x + [_delay_of_createUnit]) call btc_fnc_mil_create_group) select 1;
+    _delay_of_activating pushBack _delay_of_createUnit;
+} forEach _mil_create_groups; // Create one by one military group
+
+// Wait until all units have been created to deactivate it when city is fully loaded
+[{
+    params ["_city"];
+    _city setVariable ["activating", false];
+}, [_city], selectmax _delay_of_activating] call CBA_fnc_waitAndExecute;
+
+if (btc_debug) then {
+    [format ["Delay of activating: %1s", selectMax _delay_of_activating], __FILE__, [btc_debug, false]] call btc_fnc_debug_message;
+};
 
 //Patrol
 btc_patrol_active = btc_patrol_active - [grpNull];

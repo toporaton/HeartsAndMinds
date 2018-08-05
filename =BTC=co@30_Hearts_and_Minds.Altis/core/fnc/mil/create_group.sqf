@@ -1,4 +1,10 @@
-params ["_city", "_area", "_n", "_wp"];
+params [
+    "_city",
+    "_area",
+    "_n",
+    "_wp",
+    ["_delay", 0, [0]]
+];
 
 if (_city isEqualType objNull) then {
     _city = position _city;
@@ -23,51 +29,56 @@ private _group = createGroup btc_enemy_side;
 private _groups = [];
 _groups pushBack _group;
 private _structure = objNull;
+private _delay_of_createUnit = 0;
+
+if (_wp < 0.3) then {
+    private _structures = [_rpos, 70] call btc_fnc_mil_getStructures;
+    if (_structures isEqualTo []) then {
+        private _houses = [_rpos, 50] call btc_fnc_getHouses;
+        if (_houses isEqualTo []) then {
+            _wp = 0.4;
+        } else {
+            _structure = selectRandom _houses;
+            _n = 0;
+        };
+    } else {
+        _structure = selectRandom _structures;
+        _n = count (_structure buildingPos -1);
+        if (_n > 8) then {
+            _n = 2;
+        } else {
+            _n = floor(_n/2);
+        };
+    };
+};
 
 switch (true) do {
     case (_wp < 0.3) : {
-        private _structures = [_rpos, 70] call btc_fnc_mil_getStructures;
-        if !(_structures isEqualTo []) then {
-            _structure = selectRandom _structures;
-            _n = count (_structure buildingPos -1);
-            if (_n > 8) then {
-                _n = 2;
-            } else {
-                _n = floor(_n/2);
-            };
-            [_group, _rpos, _n] call btc_fnc_mil_createUnits;
-        } else {
-            [_group, _rpos, 0] call btc_fnc_mil_createUnits;
-            private _houses = [_rpos, 50] call btc_fnc_getHouses;
-            if (_houses isEqualTo []) then {
-                [_group, _rpos, _area, 2 + floor (random 4), "MOVE", "SAFE", "RED", ["LIMITED", "NORMAL"] select ((vehicle leader _group) isKindOf "Air"), "STAG COLUMN", "", [5, 10, 20]] call CBA_fnc_taskPatrol;
-            } else {
-                _structure = selectRandom _houses;
-            };
+        for "_i" from 0 to _n do {
+            private _grp = createGroup btc_enemy_side;
+            _delay_of_createUnit = ([_grp, _rpos, 0, _delay] call btc_fnc_mil_createUnits) select 1;
+            _grp setVariable ["inHouse", typeOf _structure];
+            [_grp, _structure] call btc_fnc_house_addWP;
+            _groups pushBack _grp;
         };
     };
     case (_wp > 0.3 && _wp < 0.75) : {
-        [_group, _rpos, 0, _pos_iswater] call btc_fnc_mil_createUnits;
-        [_group, _rpos, _area, 2 + floor (random 4), "MOVE", "SAFE", "RED", ["LIMITED", "NORMAL"] select ((vehicle leader _group) isKindOf "Air"), "STAG COLUMN", "", [5, 10, 20]] call CBA_fnc_taskPatrol;
+        _delay_of_createUnit = ([_group, _rpos, _n, _delay, _pos_iswater] call btc_fnc_mil_createUnits) select 1;
+        [{
+            params ["_group"];
+            !(units _group isEqualTo []) || isNull _group
+        }, {
+            _this call CBA_fnc_taskPatrol;
+        }, [_group, _rpos, _area, 2 + floor (random 4), "MOVE", "SAFE", "RED", "LIMITED", "STAG COLUMN", "", [5, 10, 20]]] call CBA_fnc_waitUntilAndExecute;
     };
     case (_wp > 0.75) : {
+        _delay_of_createUnit = ([_group, _rpos, _n, _delay, _pos_iswater] call btc_fnc_mil_createUnits) select 1;
         [_group, _rpos, 0, "SENTRY", "AWARE", "RED"] call CBA_fnc_addWaypoint;
     };
 };
-if (_structure isEqualTo objNull) then {
-    [_group, _rpos, _n - count units _group, _pos_iswater] call btc_fnc_mil_createUnits;
-} else {
-    {
-        private _grp = createGroup btc_enemy_side;
-        [_x] joinSilent _grp;
-        _grp setVariable ["inHouse", typeOf _structure];
-        [_grp, _structure] call btc_fnc_house_addWP;
-        _groups pushBack _grp;
-    } forEach units _group;
-};
 
 if (btc_debug_log) then {
-    [format ["_this = %1 ; POS %2 UNITS N %3", _this, _rpos, count units _group], __FILE__, [false]] call btc_fnc_debug_message;
+    [format ["_this = %1 ; POS %2 UNITS N %3", _this, _rpos, _n], __FILE__, [false]] call btc_fnc_debug_message;
 };
 
-_groups
+[_groups, _delay_of_createUnit]

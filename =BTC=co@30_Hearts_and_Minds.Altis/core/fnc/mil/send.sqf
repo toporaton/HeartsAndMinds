@@ -10,9 +10,8 @@ switch (_typeOf_patrol) do {
     case 0 : {
         _group = ([_pos, 150, 3 + random 6, 1] call btc_fnc_mil_create_group) select 0;
         _group setVariable ["no_cache", true];
-        [_group] call CBA_fnc_clearWaypoints;
 
-        [_group, _dest, 60, "MOVE", "AWARE", "RED", "FULL", "COLUMN", "(group this) spawn btc_fnc_data_add_group;"] call CBA_fnc_addWaypoint;
+        [_group, _dest, 60, "MOVE", "AWARE", "RED", "FULL", "COLUMN", "(group this) call btc_fnc_data_add_group;"] call CBA_fnc_addWaypoint;
     };
     case 1 : {
         _group = createGroup [btc_enemy_side, true];
@@ -24,7 +23,7 @@ switch (_typeOf_patrol) do {
 
         private _veh = [_group, _return_pos, _veh_type] call btc_fnc_mil_createVehicle;
 
-        [_group, _dest, 60, "MOVE", "AWARE", "RED", "NORMAL", "NO CHANGE", "(group this) spawn btc_fnc_data_add_group;"] call CBA_fnc_addWaypoint;
+        [_group, _dest, 60, "MOVE", "AWARE", "RED", "NORMAL", "NO CHANGE", "(group this) call btc_fnc_data_add_group;"] call CBA_fnc_addWaypoint;
         [_group, _dest, 60, "GETOUT"] call CBA_fnc_addWaypoint;
         [_group, _dest, 60, "SENTRY"] call CBA_fnc_addWaypoint;
 

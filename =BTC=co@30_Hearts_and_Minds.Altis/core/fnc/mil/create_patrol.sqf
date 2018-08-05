@@ -72,7 +72,13 @@ switch (_random) do {
     };
 };
 
-[_group, [_start_city, _active_city], _area, _pos_isWater] call btc_fnc_patrol_init;
+
+[{
+    params ["_group"];
+    !(units _group isEqualTo []) || isNull _group
+}, {
+    _this call btc_fnc_patrol_init;
+}, [_group, [_start_city, _active_city], _area, _pos_isWater]] call CBA_fnc_waitUntilAndExecute;
 
 btc_patrol_active pushBack _group;
 
