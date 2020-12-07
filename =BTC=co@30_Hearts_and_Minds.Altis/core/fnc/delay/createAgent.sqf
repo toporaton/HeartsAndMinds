@@ -33,7 +33,12 @@ btc_delay_createUnit = btc_delay_createUnit + 0.1;
         ["_city", objNull, [objNull]]
     ];
 
-    (createAgent [_agentType, _pos, [], 0, _special]) setVariable ["btc_city", _city];
+    private _agent = createAgent [_agentType, _pos, [], 0, _special];
+    _agent setVariable ["inSite", _city];
+    _agent setVariable ["btc_city", _city];
+    if (isDedicated) then {
+        [_agent] call BIS_fnc_animalBehaviour; // Not call on dedicated server
+    };
 
     btc_delay_createUnit = btc_delay_createUnit - 0.1;
 }, _this, btc_delay_createUnit - 0.01] call CBA_fnc_waitAndExecute;
