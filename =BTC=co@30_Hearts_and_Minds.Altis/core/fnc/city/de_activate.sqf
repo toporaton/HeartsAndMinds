@@ -53,37 +53,30 @@ if !(_city getVariable ["active", false]) exitWith {};
 
     private _pos_city = getPosWorld _city;
     private _data_units = [];
+    private _data_animals = [];
     private _has_suicider = false;
     {
+        private _leader = leader _x;
         if (
-            (leader _x) inArea [_pos_city, _radius, _radius, 0, false] &&
+            _leader inArea [_pos_city, _radius, _radius, 0, false] &&
             {side _x != btc_player_side} &&
             {!(_x getVariable ["no_cache", false])} &&
             {_x getVariable ["btc_city", _city] in [_city, objNull]}
         ) then {
-            private _data_group = _x call btc_fnc_data_get_group;
-            _data_units pushBack _data_group;
+            if (_leader isKindOf "Animal") then {
+                _data_animals pushBack [
+                    typeOf _leader,
+                    getPosATL _leader
+                ];
+                _x call CBA_fnc_deleteEntity;
+            } else {
+                private _data_group = _x call btc_fnc_data_get_group;
+                _data_units pushBack _data_group;
 
-            if ((_data_group select 0) in [5, 7]) then {_has_suicider = true;};
+                if ((_data_group select 0) in [5, 7]) then {_has_suicider = true;};
+            };
         };
     } forEach allGroups;
-
-    private _data_animals = [];
-    {
-        private _agent = agent _x;
-        if (
-            _agent inArea [_pos_city, _radius, _radius, 0, false] &&
-            {alive _agent} &&
-            {!(_x getVariable ["no_cache", false])} &&
-            {_x getVariable ["btc_city", _city] in [_city, objNull]}
-        ) then {
-            _data_animals pushBack [
-                typeOf _agent,
-                getPosATL _agent
-            ];
-            _agent call CBA_fnc_deleteEntity;
-        };
-    } forEach agents;
 
     private _data_tags = [];
     {

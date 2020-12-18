@@ -3,7 +3,7 @@
 Function: btc_fnc_delay_createAgent
 
 Description:
-    Create agent when all previous agents have been created. btc_delay_createagent define the time (in second) when the agent will be created.
+    Create agent when all previous agents have been created. btc_delay_createagent define the time (in second) when the agent will be created. Since https://feedback.bistudio.com/T155634 this function use units and not agents.
 
 Parameters:
     _agentType - Type of agents to create. [Array]
@@ -33,12 +33,17 @@ btc_delay_createUnit = btc_delay_createUnit + 0.1;
         ["_city", objNull, [objNull]]
     ];
 
-    private _agent = createAgent [_agentType, _pos, [], 0, _special];
-    _agent setVariable ["inSite", _city];
-    _agent setVariable ["btc_city", _city];
-    if (isDedicated) then {
-        [_agent] call BIS_fnc_animalBehaviour; // Not call on dedicated server
-    };
+    private _group = createGroup [civilian, true];
+    _group setVariable ["btc_city", _city];
+    private _agent = _group createUnit [_agentType, _pos, [], 0, _special];
+    _agent setVariable ["BIS_fnc_animalBehaviour_disable", true];
+    _agent disableAI "RADIOPROTOCOL";
+    _agent disableAI "FSM";
+    _agent disableAI "AIMINGERROR";
+    _agent disableAI "SUPPRESSION";
+    _agent disableAI "AUTOTARGET";
+    _agent disableAI "TARGET";
+    [_agent, _pos, (_city getVariable ["radius", 100])/2, 4] call CBA_fnc_taskPatrol;
 
     btc_delay_createUnit = btc_delay_createUnit - 0.1;
 }, _this, btc_delay_createUnit - 0.01] call CBA_fnc_waitAndExecute;

@@ -23,14 +23,11 @@ Author:
 
 params ["_unit", "_causeOfDeath", "_killer", "_instigator"];
 
-if (
-    !(side group _unit isEqualTo civilian) &&
-    {!isAgent teamMember _unit}
-) exitWith {};
+if (!(side group _unit isEqualTo civilian)) exitWith {};
 
 if (isPlayer _instigator) then {
     [
-        [btc_rep_malus_civ_killed, btc_rep_malus_animal_killed] select (isAgent teamMember _unit),
+        [btc_rep_malus_civ_killed, btc_rep_malus_animal_killed] select (_unit isKindOf "Animal"),
         _instigator
     ] call btc_fnc_rep_change;
     if (btc_global_reputation < 600) then {

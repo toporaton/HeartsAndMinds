@@ -33,9 +33,8 @@ params [
 ];
 
 if (!isPlayer _injurer || {_dam <= 0.05}) exitWith {_dam};
-private _isAgent = isAgent teamMember _unit;
 if (
-    !_isAgent && {
+    !(_unit isKindOf "Animal") && {
         _part isEqualTo "" ||
         {!(side group _unit isEqualTo civilian)}
     }
@@ -47,7 +46,7 @@ if (!isServer) exitWith {
 };
 
 [
-    [btc_rep_malus_civ_hd, btc_rep_malus_animal_hd] select _isAgent,
+    [btc_rep_malus_civ_hd, btc_rep_malus_animal_hd] select (_unit isKindOf "Animal"),
     _injurer
 ] call btc_fnc_rep_change;
 if (btc_global_reputation < 600) then {[getPos _unit] call btc_fnc_rep_eh_effects;};
