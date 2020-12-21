@@ -43,6 +43,10 @@ btc_delay_createUnit = btc_delay_createUnit + 0.1;
     _agent disableAI "SUPPRESSION";
     _agent disableAI "AUTOTARGET";
     _agent disableAI "TARGET";
+
+    if !(isNull _city) then {
+        _pos = getPos _city;
+    };
     [_agent, _pos, (_city getVariable ["radius", 100])/2, 4] call CBA_fnc_taskPatrol;
 
     btc_delay_createUnit = btc_delay_createUnit - 0.1;
