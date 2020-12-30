@@ -141,7 +141,6 @@ if (isServer) then {
     btc_fnc_rep_buildingchanged = compile preprocessFileLineNumbers "core\fnc\rep\buildingchanged.sqf";
     btc_fnc_rep_explosives_defuse = compile preprocessFileLineNumbers "core\fnc\rep\explosives_defuse.sqf";
     btc_fnc_rep_notify = compile preprocessFileLineNumbers "core\fnc\rep\notify.sqf";
-    btc_fnc_rep_killed = compile preprocessFileLineNumbers "core\fnc\rep\killed.sqf";
 
     //SIDE
     btc_fnc_side_create = compile preprocessFileLineNumbers "core\fnc\side\create.sqf";
@@ -246,6 +245,7 @@ btc_fnc_patrol_disabled = compile preprocessFileLineNumbers "core\fnc\patrol\dis
 
 //REP
 btc_fnc_rep_hd = compile preprocessFileLineNumbers "core\fnc\rep\hd.sqf";
+btc_fnc_rep_killed = compile preprocessFileLineNumbers "core\fnc\rep\killed.sqf";
 
 //ARSENAL
 btc_fnc_arsenal_ammoUsage = compile preprocessFileLineNumbers "core\fnc\arsenal\ammoUsage.sqf";

@@ -29,6 +29,8 @@ if (
 ) exitWith {};
 
 if (isPlayer _instigator) then {
+    if (!isServer) exitWith {_this remoteExecCall ["btc_fnc_rep_killed", 2];};
+
     [
         [btc_rep_malus_civ_killed, btc_rep_malus_animal_killed] select (isAgent teamMember _unit),
         _instigator

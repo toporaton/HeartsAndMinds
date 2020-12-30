@@ -22,6 +22,10 @@ Author:
 ["Animal", "InitPost", {
     [(_this select 0), "HandleDamage", btc_fnc_rep_hd] call CBA_fnc_addBISEventHandler;
 }, true, [], true] call CBA_fnc_addClassEventHandler;
+["Animal", "killed", {
+    params ["_unit", "_killer", "_instigator"];
+    [_unit, "", _killer, _instigator] call btc_fnc_rep_killed;
+}] call CBA_fnc_addClassEventHandler;
 
 {
     [_x, "InitPost", {
