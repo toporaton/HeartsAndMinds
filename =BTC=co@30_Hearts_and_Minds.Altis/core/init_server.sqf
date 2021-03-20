@@ -55,3 +55,4 @@ if (btc_p_side_mission_cycle > 0) then {
 {
     ["btc_tag_remover" + _x, "STR_BTC_HAM_ACTION_REMOVETAG", _x, ["#(rgb,8,8,3)color(0,0,0,0)"], "\a3\Modules_F_Curator\Data\portraitSmoke_ca.paa"] call ace_tagging_fnc_addCustomTag;
 } forEach ["ACE_SpraypaintRed"];
+//TODO PMCES invoke server.sqf {dead counter, restart...}

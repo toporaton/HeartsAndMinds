@@ -105,16 +105,16 @@ if !(_data_units isEqualTo []) then {
 } else {
     // Maximum number of enemy group
     private _max_number_group = (switch _type do {
-        case "Hill" : {1};
-        case "VegetationFir" : {1};
-        case "BorderCrossing" : {2};
-        case "NameLocal" : {2};
-        case "StrongpointArea" : {3};
-        case "NameVillage" : {3};
-        case "NameCity" : {7};
-        case "NameCityCapital" : {15};
-        case "Airport" : {15};
-        case "NameMarine" : {1};
+        case "Hill" : {2};
+        case "VegetationFir" : {2};
+        case "BorderCrossing" : {4};
+        case "NameLocal" : {4};
+        case "StrongpointArea" : {6};
+        case "NameVillage" : {6};
+        case "NameCity" : {14};
+        case "NameCityCapital" : {30};
+        case "Airport" : {30};
+        case "NameMarine" : {2};
         default {0};
     });
 
@@ -128,15 +128,16 @@ if !(_data_units isEqualTo []) then {
         private _houses = ([position _city, _spawningRadius/3] call btc_fnc_getHouses) call BIS_fnc_arrayShuffle;
 
         if (_has_en) then {
+            // Maximum number of enemy group in buildings
             private _max_number_group = (switch _type do {
-                case "VegetationFir" : {1};
-                case "BorderCrossing" : {2};
-                case "NameLocal" : {1};
-                case "StrongpointArea" : {2};
-                case "NameVillage" : {2};
-                case "NameCity" : {4};
-                case "NameCityCapital" : {5};
-                case "Airport" : {2};
+                case "VegetationFir" : {2};
+                case "BorderCrossing" : {4};
+                case "NameLocal" : {2};
+                case "StrongpointArea" : {4};
+                case "NameVillage" : {4};
+                case "NameCity" : {8};
+                case "NameCityCapital" : {10};
+                case "Airport" : {4};
                 default {0};
             });
             [+_houses, round (_p_mil_static_group_ratio * random _max_number_group), _city] call btc_fnc_mil_create_staticOnRoof;

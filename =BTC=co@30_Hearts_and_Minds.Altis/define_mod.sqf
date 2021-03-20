@@ -28,6 +28,7 @@ btc_custom_loc = [
             "G_Shades_Green"
         ];
 */
+//TODO PMCES restrict arsenal
 private _weapons = [];
 private _magazines = [];
 private _items = [];

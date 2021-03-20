@@ -27,6 +27,7 @@ params [
 private _suicider = _trigger getVariable "suicider";
 
 if (alive _suicider && [_suicider] call ace_common_fnc_isAwake) then {
+//TODO PMCES suicides are international!
     playSound3d [getMissionPath "core\sounds\allahu_akbar.ogg", _suicider, false, getPosASL _suicider, 5, random [0.9, 1, 1.2], 100];
 };
 

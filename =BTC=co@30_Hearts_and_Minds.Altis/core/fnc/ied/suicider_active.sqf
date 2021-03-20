@@ -33,6 +33,7 @@ _group setVariable ["suicider", true];
 private _trigger = createTrigger ["EmptyDetector", getPos _suicider];
 _trigger setTriggerArea [5, 5, 0, false];
 _trigger setTriggerActivation [str btc_player_side, "PRESENT", false];
+//TODO PMCES suicides are international!
 _trigger setTriggerStatements ["this", "thisTrigger call btc_fnc_ied_allahu_akbar;", ""];
 _trigger setVariable ["suicider", _suicider];
 
