@@ -113,8 +113,7 @@ class Params {
         texts[]={""};
         default = 0;
     };
-    //TODO PMCES it would be great to have different setting for city, village, outpost...
-    class btc_p_is_free_prob { // Probability for a city to be free:
+        class btc_p_is_free_prob { // Probability for a city to be free:
         title = __EVAL(format ["      %1", localize "STR_BTC_HAM_PARAM_SPWAN_ISFREE_PROB"]);
         values[]={0,10,20,30,40,45,50,60,70,80,90,100};
         texts[]={"0%","10%","20%","30%","40%","45%","50%","60%","70%","80%","90%","100%"};

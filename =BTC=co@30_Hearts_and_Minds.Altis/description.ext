@@ -50,7 +50,8 @@ class Extended_InitPost_EventHandlers {
 };
 
 respawn = "BASE";
-respawnDelay = 2;
+//TODO PMCES respawn delay?
+respawnDelay = 30;
 respawnDialog = 0;
 respawnOnStart = 0;
 respawnTemplates[] = {"MenuPosition"};
